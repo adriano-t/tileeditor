@@ -1,0 +1,80 @@
+<!doctype html>
+<html>
+<head>
+	<title>HTML5 LevelEditor</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
+	<script language="javascript" src="js/main.js" ></script>
+	<script language="javascript" src="js/resources.js" ></script> 
+	<script language="javascript" src="js/utils.js" ></script>
+	<style>
+	body,p,div{ margin:0; border:0;padding:0; font:11pt 'Segoe UI Light'} 
+	p{border:1px solid #ddd;}
+	div{border:1px solid #555;} 
+		
+	/*SCROLLBAR*/
+	::-webkit-scrollbar {
+		width: 0.6em;
+		height: 0.6em;
+		background: #eaeaea;
+		margin-right: 10px;
+	}
+
+	::-webkit-scrollbar:hover {
+		background-color: #CCC;
+		border: none;
+	}
+
+	::-webkit-scrollbar-thumb {
+		min-height: 0.6em;
+		min-width: 0.6em;
+		background-color: #888;
+		border: none;
+		box-shadow: inset 1px 1px 10px #666;
+	}
+	::-webkit-scrollbar-thumb:hover {
+		background-color: #666;
+		border: none;
+	}
+	::-webkit-scrollbar-thumb:active {
+		background-color: #333;
+		border: none;
+	}
+	</style>
+</head>
+<body style="background-color:#eee;" >
+	<div id="EditorDiv" style="overflow:auto; float:left;" >
+		<canvas id="EditorCanvas" >
+				Your browser does not support the HTML5 canvas element.
+		</canvas>
+	</div>
+	<div id="SelectionDiv" style="overflow:auto; position:absolute;" >
+		<canvas id="SelectionCanvas" >
+				Your browser does not support the HTML5 canvas element.
+		</canvas>
+	</div>
+	<div id="Options" style="overflow:auto; position:absolute;">
+		
+		<p>Tool: <select id="mode" >
+			<option selected="selected">Tile</option>
+			<option >Collision</option> 
+			<option >Object</option> 
+		</select> 
+		<input id="newObject" type="button" value="New" style="visibility:hidden;" />
+		</p>
+		<p>Cell size: <input id="cellSize" type="text" value="32" style="width:30px;" /> | 
+		Spacing: <input id="spacing" type="text" value="2" style="width:30px;" /> </p>
+		<p>
+		Grid: <input id="grid_t" type="checkbox" checked /> | 
+		Tile: <input id="tiles_t" type="checkbox" checked /> | 
+		Coll: <input id="blocks_t" type="checkbox" checked /> | 
+		Obj: <input id="objects_t" type="checkbox" checked />
+		</p>
+		<p>Image: <input id="loadFile" type="file" style="width:220px;"/> </p>
+		<p>Map: <input id="newMap" type="button" value="New"/>
+		<input id="export" type="button" value="Save" />
+		<input id="loadMap" type="button" value="Load" /></p>
+		<p><textarea id="output"  rows="5" cols="32" /></textarea></p>
+		
+	</div>
+</body>
+</html>
