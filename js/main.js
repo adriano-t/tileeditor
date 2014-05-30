@@ -16,10 +16,10 @@ function Editor(areaW, areaH){
 	this.areaH = areaH;
 	
 	this.cellSize = 32;
-	this.spacing = 2;
+	this.spacing = 1;
 	
 	this.SetSize = function(){
-		this.div = document.getElementById("EditorDiv");
+		this.div = $("EditorDiv");
 		this.div.style.width = ((window.innerWidth)/4*3 - 8) + "px";
 		this.div.style.height = (window.innerHeight-5 - 8) + "px";
 		this.div.style.cursor = "copy";  
@@ -27,7 +27,7 @@ function Editor(areaW, areaH){
 	this.SetSize();
 	
 	 
-	this.canvas = document.getElementById("EditorCanvas");
+	this.canvas = $("EditorCanvas");
 	
 	this.ResizeCanvas = function(){
 		this.canvas.setAttribute("width",this.areaW * this.cellSize);
@@ -68,20 +68,35 @@ function Editor(areaW, areaH){
 	this.drawTiles = true;
 	this.drawBlocks = true;
 	this.drawObjects = true;
+	this.drawLayer = true;
 	
 	this.mode = 0;
-	document.getElementById("mode").onchange = function(){
+	this.layer = 0;
+	
+	$("mode").onchange = function(){
 		editor.mode = this.selectedIndex;
-		if(this.selectedIndex == 2){
-			document.getElementById("newObject").style.visibility = "visible";
+		
+		if(this.selectedIndex == 0){
+			$("layer_p").style.display = "inline";
 		}else{
-			document.getElementById("newObject").style.visibility = "hidden";
+			$("layer_p").style.display = "none";
+		}
+		
+		if(this.selectedIndex == 2){
+			$("newObject").style.display = "inline";
+		}else{
+			$("newObject").style.display = "none";
 		}
 	};
-	document.getElementById("export").onclick = function(){editor.Export();};
-	document.getElementById("loadMap").onclick = function(){editor.LoadMap();};
 	
-	document.getElementById("newMap").onclick = function(){
+	$("layer_s").onchange = function(){
+		editor.layer = this.selectedIndex;
+		editor.Draw();
+	};
+	$("export").onclick = function(){editor.Export();};
+	$("loadMap").onclick = function(){editor.LoadMap();};
+	
+	$("newMap").onclick = function(){
 		var w = prompt("Area Width",null);
 		if (w != null){
 			var h = prompt("Area Height",null);
@@ -98,6 +113,75 @@ function Editor(areaW, areaH){
 			}
 		}
 	};
+	
+	$("resizeMap").onclick = function(){
+		var w = prompt("Area Width",null);
+		if (w != null){
+			var h = prompt("Area Height",null);
+			if (h != null){
+				w = parseInt(w);
+				h = parseInt(h);
+				if(w*editor.cellSize < 4000 && h*editor.cellSize < 4000){
+					editor.areaW = w;
+					editor.areaH = h;
+					editor.ResizeCanvas();
+					editor.Draw();
+				}
+				else{
+					alert(w + " x "+ h +" is too big");
+				}
+			}
+		}
+	};
+	
+	
+	$("cellSize").onchange = function(){
+		editor.cellSize = parseInt(this.value);
+		editor.Draw();
+		selection.Draw();
+	};
+	$("grid_t").onchange = function(){
+		editor.drawGrid = this.checked;
+		editor.Draw();
+	}; 
+	$("tiles_t").onchange = function(){
+		editor.drawTiles = this.checked;
+		editor.Draw();
+	}; 
+	$("blocks_t").onchange = function(){
+		editor.drawBlocks = this.checked;
+		editor.Draw();
+	}; 
+	$("objects_t").onchange = function(){
+		editor.drawObjects = this.checked;
+		editor.Draw();
+	};
+	$("layer_t").onchange = function(){
+		editor.drawLayer = this.checked;
+		editor.Draw();
+	}; 
+	
+	$("spacing").onchange = function(){
+		editor.spacing = parseInt(this.value);
+		editor.Draw();
+		selection.Draw();
+	};
+	
+	$("newObject").onclick = function(){
+		editor.objectId = null;
+	}
+	
+	$("newLayer").onclick = function(){
+		editor.tiles.push([]);
+		var sel = $("layer_s");
+		var sel_idx = sel.options.length;
+		var opt = new Option(sel_idx+"", sel_idx+"");
+		sel.options[sel_idx] = opt;
+		opt.setAttribute("selected","selected");
+		editor.layer = sel_idx;
+		editor.Draw();
+	}
+	
 	
 	this.Export = function(){
 		var n = parseInt(prompt("Level Number",1));
@@ -116,10 +200,17 @@ function Editor(areaW, areaH){
 		//tiles
 		output += "[";
 		for(var i = 0; i < this.tiles.length; i ++){
-			output += "[" +
-			this.tiles[i][4]+ "," +
-			this.tiles[i][0]/this.cellSize + "," +
-			this.tiles[i][1]/this.cellSize + "]";
+			var layer = this.tiles[i];
+			output += "[";
+			for(var j = 0; j < layer.length; j ++){
+				output += "[" +
+				layer[j][4]+ "," +
+				layer[j][0]/this.cellSize + "," +
+				layer[j][1]/this.cellSize + "]";
+				if(j < layer.length -1)
+					output += ","
+			}
+			output += "]";
 			if(i < this.tiles.length -1)
 				output += ","
 		}
@@ -150,18 +241,25 @@ function Editor(areaW, areaH){
 		
 		
 		output += "];"; 
-		document.getElementById("output").value = output;
+		$("output").value = output;
 	}
 	
 	
 	
 	this.LoadMap = function(){ 
 		var levels = [];
-		eval(document.getElementById("output").value);
+		eval($("output").value);
 		if(levels.length == 0){
 			alert("Error: Unable to find levels[n]");
 			return null;
-		} 
+		}
+		var sel = $("layer_s");
+		while(sel.options.length > 0){
+			sel.remove(0);
+		}
+		editor.objects = [];
+		editor.blocks = [];
+		editor.tiles = [];
 		lev = levels.length-1;
 		//carico le info sul livello
 		var settings = levels[lev][0];
@@ -171,17 +269,23 @@ function Editor(areaW, areaH){
 		this.areaH = settings[3];
 		this.ResizeCanvas();
 		//dati sui tiles
-		var tiles = levels[lev][1];
+		var tiles = levels[lev][1]; 
 		var cs = this.cellSize + this.spacing; 
 		var cellsX = Math.ceil(selection.image.width / cs);
 		var cellsY = Math.ceil(selection.image.height / cs);
 		 
-		for(var i = 0; i < tiles.length; i++){
-			var t = tiles[i];
-			var cy = Math.floor(t[0] / cellsX);
-			var cx = t[0] - cy*cellsX;
-			this.tiles.push([t[1]*this.cellSize, t[2]*this.cellSize, cx*cs, cy*cs,t[0]]);
+		for(var j = 0; j < tiles.length; j++){
+			var layer = tiles[j];
+			editor.tiles.push([]);
+			for(var i = 0; i < layer.length; i++){
+				var cy = Math.floor(layer[i][0] / cellsX);
+				var cx = layer[i][0] - cy*cellsX;
+				editor.tiles[j].push([layer[i][1]*this.cellSize, layer[i][2]*this.cellSize, cx*cs, cy*cs,layer[i][0]]);
+			}
+			var sel_idx = sel.options.length;
+			sel.options[sel_idx] = new Option(sel_idx+"", sel_idx+"");
 		}
+		
 		
 		//dati sui blocchi di collisione
 		var blocks = levels[lev][2];
@@ -200,41 +304,11 @@ function Editor(areaW, areaH){
 		editor.Draw();
 	}
 	
+	 
 	
-	document.getElementById("cellSize").onchange = function(){
-		editor.cellSize = parseInt(this.value);
-		editor.Draw();
-		selection.Draw();
-	};
-	document.getElementById("grid_t").onchange = function(){
-		editor.drawGrid = this.checked;
-		editor.Draw();
-	}; 
-	document.getElementById("tiles_t").onchange = function(){
-		editor.drawTiles = this.checked;
-		editor.Draw();
-	}; 
-	document.getElementById("blocks_t").onchange = function(){
-		editor.drawBlocks = this.checked;
-		editor.Draw();
-	}; 
-	document.getElementById("objects_t").onchange = function(){
-		editor.drawObjects = this.checked;
-		editor.Draw();
-	};
-	
-	document.getElementById("spacing").onchange = function(){
-		editor.spacing = parseInt(this.value);
-		editor.Draw();
-		selection.Draw();
-	};
-	
-	document.getElementById("newObject").onclick = function(){
-		editor.objectId = null;
-	}
 	
 	//image file
-	var finput = document.getElementById("loadFile");
+	var finput = $("loadFile");
 	finput.onchange = function(){
 		var file = this.files[0];
 		var fr = new FileReader();
@@ -246,7 +320,7 @@ function Editor(areaW, areaH){
 		fr.readAsDataURL(file);
 	} 
 	
-	this.tiles = [];
+	this.tiles = [[]];
 	this.blocks = [];
 	this.objects = [];
 	this.objectId = null; //current objecty
@@ -258,7 +332,7 @@ function Editor(areaW, areaH){
 		
 		var buffer;
 		switch(this.mode){
-			case 0: buffer = this.tiles; break;
+			case 0: buffer = this.tiles[this.layer]; break;
 			case 1: buffer = this.blocks; break;
 			case 2: buffer = this.objects; break;
 		}
@@ -300,7 +374,7 @@ function Editor(areaW, areaH){
 		
 		var buffer;
 		switch(this.mode){
-			case 0: buffer = this.tiles; break;
+			case 0: buffer = this.tiles[this.layer]; break;
 			case 1: buffer = this.blocks; break;
 			case 2: buffer = this.objects; break;
 		}
@@ -352,12 +426,27 @@ function Editor(areaW, areaH){
 		
 		//tiles
 		if(this.drawTiles){
-			for(var i = 0; i < this.tiles.length; i ++){ 
-				this.ctx.drawImage(selection.image,
-					this.tiles[i][2], this.tiles[i][3],
-					cs, cs,
-					this.tiles[i][0], this.tiles[i][1],
-					cs, cs); 
+			if(this.drawLayer){
+				var layer = this.tiles[this.layer];
+				for(var i = 0; i < layer.length; i ++){ 
+					this.ctx.drawImage(selection.image,
+						layer[i][2], layer[i][3],
+						cs, cs,
+						layer[i][0], layer[i][1],
+						cs, cs); 
+				}
+			}
+			else{
+				for(var i = 0; i < this.tiles.length; i ++){
+					var layer = this.tiles[i];
+					for(var j = 0; j < layer.length; j ++){ 
+						this.ctx.drawImage(selection.image,
+							layer[j][2], layer[j][3],
+							cs, cs,
+							layer[j][0], layer[j][1],
+							cs, cs); 
+					}
+				}
 			}
 		}
 		
@@ -389,7 +478,7 @@ function Editor(areaW, areaH){
 		
 		//objects
 		if(this.drawObjects){
-			this.ctx.strokeStyle = "#00c";
+			this.ctx.strokeStyle = "#00c"; 
 			var cs2 = cs/2;
 			this.ctx.textAlign = "center";
 			this.ctx.textBaseline = "middle";
@@ -422,14 +511,14 @@ function SelectionFrame(image){
 	
 	this.SetSize = function(){
 		this.width = (window.innerWidth-5)/4 ;
-		this.div = document.getElementById("SelectionDiv");
+		this.div = $("SelectionDiv");
 		this.div.style.width = this.width + "px";
 		this.div.style.height = window.innerHeight/5*3+"px" 
 		this.div.style.left = window.innerWidth - this.width - 6 +"px" 
 		this.div.style.cursor = "pointer";  
 		
 		
-		this.divOpt = document.getElementById("Options");
+		this.divOpt = $("Options");
 		this.divOpt.style.padding = "5px";
 		this.divOpt.style.width = this.width -10 + "px";
 		this.divOpt.style.height = window.innerHeight/5*2 -26+"px"; 
@@ -444,7 +533,7 @@ function SelectionFrame(image){
 	this.cellsY = Math.ceil(this.image.height / (editor.cellSize + editor.spacing));
 	
 	
-	this.canvas = document.getElementById("SelectionCanvas");
+	this.canvas = $("SelectionCanvas");
 	this.canvas.setAttribute("width",this.image.width+2);
 	this.canvas.setAttribute("height",this.image.height+2);
 	this.canvas.onclick = function(){

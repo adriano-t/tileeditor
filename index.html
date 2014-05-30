@@ -9,8 +9,7 @@
 	<style>
 	body,p,div{ margin:0; border:0;padding:0; font:11pt 'Segoe UI Light'} 
 	p{border:1px solid #ddd;}
-	div{border:1px solid #555;} 
-		
+	div{border:1px solid #555;}  
 	/*SCROLLBAR*/
 	::-webkit-scrollbar {
 		width: 0.6em;
@@ -55,11 +54,17 @@
 	<div id="Options" style="overflow:auto; position:absolute;">
 		
 		<p>Tool: <select id="mode" >
-			<option selected="selected">Tile</option>
-			<option >Collision</option> 
-			<option >Object</option> 
-		</select> 
-		<input id="newObject" type="button" value="New" style="visibility:hidden;" />
+				<option selected="selected">Tile</option>
+				<option >Collision</option> 
+				<option >Object</option> 
+			</select> 
+			<input id="newObject" type="button" value="New" style="display:none;" />
+			
+			<span id="layer_p" >| Layer: <select id="layer_s" >
+				<option selected="selected">0</option>
+			</select> 
+			<input id="newLayer" type="button" value="+"  />
+			</span>
 		</p>
 		<p>Cell size: <input id="cellSize" type="text" value="32" style="width:30px;" /> | 
 		Spacing: <input id="spacing" type="text" value="2" style="width:30px;" /> </p>
@@ -67,10 +72,12 @@
 		Grid: <input id="grid_t" type="checkbox" checked /> | 
 		Tile: <input id="tiles_t" type="checkbox" checked /> | 
 		Coll: <input id="blocks_t" type="checkbox" checked /> | 
-		Obj: <input id="objects_t" type="checkbox" checked />
+		Obj: <input id="objects_t" type="checkbox" checked /> | 
+		Layer: <input id="layer_t" type="checkbox" checked />
 		</p>
 		<p>Image: <input id="loadFile" type="file" style="width:220px;"/> </p>
 		<p>Map: <input id="newMap" type="button" value="New"/>
+		<input id="resizeMap" type="button" value="Resize" />
 		<input id="export" type="button" value="Save" />
 		<input id="loadMap" type="button" value="Load" /></p>
 		<p><textarea id="output"  rows="5" cols="32" /></textarea></p>

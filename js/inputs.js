@@ -1,13 +1,13 @@
 //costanti riguardanti gli inputs
-var MOUSE_LEFT = 1,
-MOUSE_RIGHT = 3,
-KEY_LEFT = 37,
-KEY_RIGHT = 39,
-KEY_UP = 38,
-KEY_DOWN = 40,
-KEY_ENTER = 13,
-KEY_ESC = 27,
-KEY_CTRL = 17,
+MOUSE_LEFT = 1;
+MOUSE_RIGHT = 3;
+KEY_LEFT = 37;
+KEY_RIGHT = 39;
+KEY_UP = 38;
+KEY_DOWN = 40;
+KEY_ENTER = 13;
+KEY_ESC = 27;
+KEY_CTRL = 17;
 KEY_SPACE = 32;
 
 // oggetto che gestisce gli input

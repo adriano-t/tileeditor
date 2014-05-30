@@ -26,3 +26,5 @@ window.addEventListener('focus', function() {
 
 window.addEventListener('blur', function() {
 });
+
+var $ = function( id ) { return document.getElementById( id ); };
