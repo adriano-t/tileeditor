@@ -1,11 +1,6 @@
 var editor = null;
 var selection = null; 
 
-/*
-window.onerror = function(msg, url, linenumber) {
-	return true;
-}
-*/
 function StartEditor(){ 
 	editor = new Editor(22,12); 
 }
@@ -26,7 +21,6 @@ function Editor(areaW, areaH){
 	}
 	this.SetSize();
 	
-	 
 	this.canvas = $("EditorCanvas");
 	
 	this.ResizeCanvas = function(){
@@ -35,7 +29,6 @@ function Editor(areaW, areaH){
 	}
 	
 	this.ResizeCanvas();
-	
 	
 	this.canvas.addEventListener('contextmenu', function (event) {
 		event.preventDefault();
@@ -97,28 +90,40 @@ function Editor(areaW, areaH){
 	$("loadMap").onclick = function(){editor.LoadMap();};
 	
 	$("newMap").onclick = function(){
-		var w = prompt("Area Width",null);
-		if (w != null){
-			var h = prompt("Area Height",null);
-			if (h != null){
+		var newMap = document.getElementById('new-map'); 
+		runOverlay(newMap);
+		$("newDims").onclick = function(){
+			var w = $("newWidth").value;
+			var h = $("newHeight").value;
+			var err = newMap.querySelectorAll('.error')[0];
+			err.innerHTML = '';
+			if (w != null && h != null){
 				w = parseInt(w);
 				h = parseInt(h);
 				if(w*editor.cellSize < 4000 && h*editor.cellSize < 4000){
 					editor = null;
-					editor = new Editor(w,h); 
+					editor = new Editor(w,h);
+					err.innerHTML = '';
+					closeOverlay(); 
 				}
 				else{
-					alert(w + " x "+ h +" is too big");
+					err.innerHTML = 'A dimension of ' + w + 'x' + h + ' is too big'; 
+					$("newWidth").value = null;
+					$("newHeight").value = null;
 				}
 			}
 		}
 	};
 	
 	$("resizeMap").onclick = function(){
-		var w = prompt("Area Width",null);
-		if (w != null){
-			var h = prompt("Area Height",null);
-			if (h != null){
+		var resMap = document.getElementById('resize-map'); 
+		runOverlay(resMap);
+		$("resDims").onclick = function(){
+			var w = $("resWidth").value;
+			var h = $("resHeight").value;
+			var err = resMap.querySelectorAll('.error')[0];
+			err.innerHTML = '';
+			if (w != null && h != null){
 				w = parseInt(w);
 				h = parseInt(h);
 				if(w*editor.cellSize < 4000 && h*editor.cellSize < 4000){
@@ -126,9 +131,13 @@ function Editor(areaW, areaH){
 					editor.areaH = h;
 					editor.ResizeCanvas();
 					editor.Draw();
+					err.innerHTML = '';
+					closeOverlay(); 
 				}
 				else{
-					alert(w + " x "+ h +" is too big");
+					err.innerHTML = 'A dimension of ' + w + 'x' + h + ' is too big'; 
+					$("resWidth").value = null;
+					$("resHeight").value = null;
 				}
 			}
 		}
@@ -137,6 +146,8 @@ function Editor(areaW, areaH){
 	
 	$("cellSize").onchange = function(){
 		editor.cellSize = parseInt(this.value);
+		editor.SetSize();
+		editor.ResizeCanvas();
 		editor.Draw();
 		selection.Draw();
 	};
@@ -181,7 +192,6 @@ function Editor(areaW, areaH){
 		editor.layer = sel_idx;
 		editor.Draw();
 	}
-	
 	
 	this.Export = function(){
 		var n = parseInt(prompt("Level Number",1));
@@ -240,8 +250,9 @@ function Editor(areaW, areaH){
 		output += "]";
 		
 		
-		output += "];"; 
+		output += "];";
 		$("output").value = output;
+		runOverlay($('output'));
 	}
 	
 	
@@ -395,12 +406,12 @@ function Editor(areaW, areaH){
 	 
 	///Sprites
 	//Player  
-	this.imgTiles = rh.LoadImage("res/tiles.png", function(){
+	this.imgTiles = rh.LoadImage("_asset/_img/tiles.png", function(){
 		selection = new SelectionFrame(editor.imgTiles);
 	}); 
 	
 	//menu
-	this.sprLogo = rh.LoadImage("res/logo.png");  
+	this.sprLogo = rh.LoadImage("_asset/_img/logo.png");  
  
 	 
 	
