@@ -39,7 +39,6 @@ input[type="button"],
 	background: -ms-linear-gradient(top, #aaaaaa 0%,#555555 100%); /* IE10+ */
 	background: linear-gradient(to bottom, #aaaaaa 0%,#555555 100%); /* W3C */
 	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#aaaaaa', endColorstr='#555555',GradientType=0 ); /* IE6-9 */
-	border-radius: 5px;
 	color: #fff;
 	cursor: pointer;
 	}
@@ -68,8 +67,9 @@ input[type="button"]:active, input[type="button"]:focus
 	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#555555', endColorstr='#aaaaaa',GradientType=0 ); /* IE6-9 */
 	}
 	
-input[type="button"]:active,
-input[type="button"]:focus {
+input[type="button"],
+input[type="text"],
+input[type="number"] {
 	outline: 0;
 	}
 
@@ -91,7 +91,6 @@ input[type="checkbox"] + label:before 	{
 	bottom: 0;
 	background-color: #aaa;
 	box-shadow: inset 0px 2px 3px 0px rgba(0, 0, 0, .3), 0px 1px 0px 0px rgba(255, 255, 255, .8);
-	border-radius: 3px;
 	color: #fff;
 	text-align: center;
 	line-height: 16px;
@@ -99,7 +98,7 @@ input[type="checkbox"] + label:before 	{
 	
 input[type="checkbox"]:checked + label:before { content: '\2713'; }
 
-.error { display: block; padding: 5px 0; color: #E00502; }
+.error { display: block; color: #E00502; line-height: 1.1em; }
 
 /* ====================================================
 #MAIN
@@ -110,11 +109,14 @@ div	{ margin:0; border:0; padding:0; font: 11pt Arial; }
 
 body { background: #eee; }
 
-p	{ border: 1px solid #ddd; }
+p	{ margin: 10px 0; }
 
 div	{ border: 1px solid #555; } 
 
-.overlay 			{
+/* ====================================================
+#UI
+==================================================== */
+.overlay {
 	position: fixed;
 	top: 0;
 	left: 0;
@@ -123,26 +125,8 @@ div	{ border: 1px solid #555; }
 	background: rgba(0,0,0,.6);
 	z-index: 998;
 	opacity: 0;
-	transform: scale(0.7,0.7);
 	z-index: -999;
 	cursor: pointer;
-	}
-.output {
-	position: fixed;
-	width: 93%;
-	min-height: 50%;
-	top: 30px;
-	left: 3%;
-	right: 3%;
-	bottom: 30px;
-	padding: 20px;
-	z-index: -999;
-	opacity: 0;
-	resize: none;
-	background: #fff;
-	transform: scale(.5,.5);
-	box-sizing: border-box;
-	border-radius: 20px;
 	}
 	
 .dialog-box {
@@ -155,54 +139,77 @@ div	{ border: 1px solid #555; }
 	min-width: 200px;
 	max-height: 50%;
 	padding: 20px;
-	border-radius: 20px;
 	box-sizing: border-box;
 	background: #fff;
+	border: 1px solid #fff;
 	opacity: 0;
 	z-index: -999;
 	transform: scale(.4,.4);
 	}
 	
-.overlay.active		{ opacity: 1; transform: scale(1,1); z-index: 998; }
+.output {
+	width: 93%;
+	min-height: 50%;
+	max-height: none;
+	top: 30px;
+	left: 3%;
+	right: 3%;
+	bottom: 30px;
+	padding: 20px;
+	resize: none;
+	transform: scale(.5,.5);
+	}
+	
+.overlay.active		{ opacity: 1; z-index: 998; }
 .output.active,
 .dialog-box.active	{ z-index: 999; opacity: 1; transform: scale(1,1); }
 
-/* ====================================================
-#UI
-==================================================== */
+.overlay-title 		{ position: absolute; margin: 0; top: -20px; left: 0; font-size: 14px; text-transform: uppercase; color: #fff; font-weight: normal; }
+
 .options-list		{ margin: 0; padding: 0; list-style: none; }
 .options-list li 	{ display: block; overflow: hidden; margin: 0; padding: 5px 0; }
+
+.dialog-box > input { box-sizing: border-box; }
+
+.dialog-box > input[type="text"],
+.dialog-box > input[type="number"] { position: absolute; top: 0; left: 0; width: 35%; height: 100%; padding: 0 10px; border: 0; }
+
+.dialog-box > input[type="text"].full-length,
+.dialog-box > input[type="number"].full-length { width: 70%; }
+
+.dialog-box > input + input[type="text"],
+.dialog-box > input + input[type="number"] { left: 35%; }
+
+.dialog-box > input[type="button"] { position: absolute; top: 0; right: 0; width: 30%; height: 100%; padding: 0 10px; }
+
+.dialog-box > .error		{ display: block; position: absolute; padding: 5px; bottom: 0; left: -1px; right: -1px; background: #fff; opacity: 0; z-index: -999; }
+.dialog-box > .error.active { bottom: -27px; opacity: 1; z-index: 999; }
 
 /* ====================================================
 #TRANSITIONS
 ==================================================== */
 .overlay {
-	-webkit-transition: opacity .5s ease-in-out, transform .3s ease-in-out;
-	-moz-transition: opacity .5s ease-in-out, transform .3s ease-in-out;
-	-ms-transition: opacity .5s ease-in-out, transform .3s ease-in-out;
-	-o-transition: opacity .5s ease-in-out, transform .3s ease-in-out;
-	transition: opacity .5s ease-in-out, transform .3s ease-in-out;
+	-webkit-transition: opacity .5s ease-in-out;
+	-moz-transition: opacity .5s ease-in-out;
+	-ms-transition: opacity .5s ease-in-out;
+	-o-transition: opacity .5s ease-in-out;
+	transition: opacity .5s ease-in-out;
 	}
 	
-.output {
-	-webkit-transition: top .4s ease-in-out, bottom .4s ease-in-out, opacity .4s ease-in-out;
-	-moz-transition: top .4s ease-in-out, bottom .4s ease-in-out, opacity .4s ease-in-out;
-	-ms-transition: top .4s ease-in-out, bottom .4s ease-in-out, opacity .4s ease-in-out;
-	-o-transition: top .4s ease-in-out, bottom .4s ease-in-out, opacity .4s ease-in-out;
-	transition: top .4s ease-in-out, bottom .4s ease-in-out, opacity .4s ease-in-out;
-	-webkit-transition-delay: .1s;
-    transition-delay: .1s;
+.dialog-box {
+	-webkit-transition: opacity .3s ease-in-out, transform .3s ease-in-out;
+	-moz-transition: opacity .3s ease-in-out, transform .3s ease-in-out;
+	-ms-transition: opacity .3s ease-in-out, transform .3s ease-in-out;
+	-o-transition: opacity .3s ease-in-out, transform .3s ease-in-out;
+	transition: opacity .3s ease-in-out, transform .3s ease-in-out;
 	}
 	
-.dialog-box,
-.output {
-	-webkit-transition: top .4s ease-in-out, bottom .4s ease-in-out, opacity .4s ease-in-out, transform .4s ease-in-out;
-	-moz-transition: top .4s ease-in-out, bottom .4s ease-in-out, opacity .4s ease-in-out, transform .4s ease-in-out;
-	-ms-transition: top .4s ease-in-out, bottom .4s ease-in-out, opacity .4s ease-in-out, transform .4s ease-in-out;
-	-o-transition: top .4s ease-in-out, bottom .4s ease-in-out, opacity .4s ease-in-out, transform .4s ease-in-out;
-	transition: top .4s ease-in-out, bottom .4s ease-in-out, opacity .4s ease-in-out, transform .4s ease-in-out;
-	-webkit-transition-delay: .1s;
-    transition-delay: .1s;
+.error {
+	-webkit-transition: opacity .3s ease-in-out, bottom .3s ease-in-out, z-index .3s ease-in-out;
+	-moz-transition: opacity .3s ease-in-out, bottom .3s ease-in-out, z-index .3s ease-in-out;
+	-ms-transition: opacity .3s ease-in-out, bottom .3s ease-in-out, z-index .3s ease-in-out;
+	-o-transition: opacity .3s ease-in-out, bottom .3s ease-in-out, z-index .3s ease-in-out;
+	transition: opacity .3s ease-in-out, bottom .3s ease-in-out, z-index .3s ease-in-out;
 	}
 
 /* ====================================================

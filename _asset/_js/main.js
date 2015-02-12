@@ -90,39 +90,41 @@ function Editor(areaW, areaH){
 	$("loadMap").onclick = function(){editor.LoadMap();};
 	
 	$("newMap").onclick = function(){
+		this.blur();
 		var newMap = document.getElementById('new-map'); 
-		runOverlay(newMap);
+		runOverlay(newMap, 'Create a new map');
 		$("newDims").onclick = function(){
 			var w = $("newWidth").value;
 			var h = $("newHeight").value;
-			var err = newMap.querySelectorAll('.error')[0];
-			err.innerHTML = '';
 			if (w != null && h != null){
 				w = parseInt(w);
 				h = parseInt(h);
 				if(w*editor.cellSize < 4000 && h*editor.cellSize < 4000){
 					editor = null;
 					editor = new Editor(w,h);
-					err.innerHTML = '';
 					closeOverlay(); 
 				}
-				else{
-					err.innerHTML = 'A dimension of ' + w + 'x' + h + ' is too big'; 
+				else if(isNaN(w) || isNaN(h)){
+					runAlert('You must provide all the dimensions in order to create the map', true);
 					$("newWidth").value = null;
 					$("newHeight").value = null;
 				}
+				else{
+					runAlert('A size of ' + w + 'x' + h + ' is too big.', true);
+					$("newWidth").value = null;
+					$("newHeight").value = null;
+					}
 			}
 		}
 	};
 	
 	$("resizeMap").onclick = function(){
+		this.blur();
 		var resMap = document.getElementById('resize-map'); 
-		runOverlay(resMap);
+		runOverlay(resMap, 'Resize the map');
 		$("resDims").onclick = function(){
 			var w = $("resWidth").value;
 			var h = $("resHeight").value;
-			var err = resMap.querySelectorAll('.error')[0];
-			err.innerHTML = '';
 			if (w != null && h != null){
 				w = parseInt(w);
 				h = parseInt(h);
@@ -131,14 +133,18 @@ function Editor(areaW, areaH){
 					editor.areaH = h;
 					editor.ResizeCanvas();
 					editor.Draw();
-					err.innerHTML = '';
 					closeOverlay(); 
 				}
-				else{
-					err.innerHTML = 'A dimension of ' + w + 'x' + h + ' is too big'; 
+				else if(isNaN(w) || isNaN(h)){
+					runAlert('You must provide all the dimensions in order to create the map', true);
 					$("resWidth").value = null;
 					$("resHeight").value = null;
 				}
+				else{
+					runAlert('A size of ' + w + 'x' + h + ' is too big.', true);
+					$("resWidth").value = null;
+					$("resHeight").value = null;
+					}
 			}
 		}
 	};
@@ -194,65 +200,78 @@ function Editor(areaW, areaH){
 	}
 	
 	this.Export = function(){
-		var n = parseInt(prompt("Level Number",1));
-		var output = "levels["+n+"] = [";
 		
-		//settings
+		var lvl = this;
+		var savLvl = document.getElementById('save-level'); 
+		runOverlay(savLvl, 'Set the level number');
 		
-		output += "[" +
-		this.cellSize + "," +
-		this.spacing + "," +
-		this.areaW + "," +
-		this.areaH ;
-		
-		output += "],";
-		
-		//tiles
-		output += "[";
-		for(var i = 0; i < this.tiles.length; i ++){
-			var layer = this.tiles[i];
+		$('levelSav').onclick = function(){
+			var n = parseInt($('levelNum').value);
+			
+			if(isNaN(n)){
+				runAlert('The inserted value for the level is not a valid number.', true);
+				return false;
+				}
+			
+			var output = "levels["+n+"] = [";
+			
+			//settings
+			
+			output += "[" +
+			lvl.cellSize + "," +
+			lvl.spacing + "," +
+			lvl.areaW + "," +
+			lvl.areaH ;
+			
+			output += "],";
+			
+			//tiles
 			output += "[";
-			for(var j = 0; j < layer.length; j ++){
+			for(var i = 0; i < lvl.tiles.length; i ++){
+				var layer = lvl.tiles[i];
+				output += "[";
+				for(var j = 0; j < layer.length; j ++){
+					output += "[" +
+					layer[j][4]+ "," +
+					layer[j][0]/lvl.cellSize + "," +
+					layer[j][1]/lvl.cellSize + "]";
+					if(j < layer.length -1)
+						output += ","
+				}
+				output += "]";
+				if(i < lvl.tiles.length -1)
+					output += ","
+			}
+			output += "],";
+			
+			//collision
+			output += "[";
+			for(var i = 0; i < lvl.blocks.length; i ++){
 				output += "[" +
-				layer[j][4]+ "," +
-				layer[j][0]/this.cellSize + "," +
-				layer[j][1]/this.cellSize + "]";
-				if(j < layer.length -1)
+				lvl.blocks[i][0]/lvl.cellSize + "," +
+				lvl.blocks[i][1]/lvl.cellSize + "]";
+				if(i < lvl.blocks.length -1)
+					output += ","
+			}
+			output += "],";
+			
+			//objects
+			output += "[";
+			for(var i = 0; i < lvl.objects.length; i ++){
+				output += "[" +
+				lvl.objects[i][0]/lvl.cellSize + "," +
+				lvl.objects[i][1]/lvl.cellSize + "," +
+				'"'+lvl.objects[i][2] + '"'+ "]";
+				if(i < lvl.objects.length -1)
 					output += ","
 			}
 			output += "]";
-			if(i < this.tiles.length -1)
-				output += ","
+			
+			
+			output += "];";
+			$("output").value = output;
+			runOverlay($('output'));
 		}
-		output += "],";
-		
-		//collision
-		output += "[";
-		for(var i = 0; i < this.blocks.length; i ++){
-			output += "[" +
-			this.blocks[i][0]/this.cellSize + "," +
-			this.blocks[i][1]/this.cellSize + "]";
-			if(i < this.blocks.length -1)
-				output += ","
-		}
-		output += "],";
-		
-		//objects
-		output += "[";
-		for(var i = 0; i < this.objects.length; i ++){
-			output += "[" +
-			this.objects[i][0]/this.cellSize + "," +
-			this.objects[i][1]/this.cellSize + "," +
-			'"'+this.objects[i][2] + '"'+ "]";
-			if(i < this.objects.length -1)
-				output += ","
-		}
-		output += "]";
-		
-		
-		output += "];";
-		$("output").value = output;
-		runOverlay($('output'));
 	}
 	
 	
@@ -261,7 +280,7 @@ function Editor(areaW, areaH){
 		var levels = [];
 		eval($("output").value);
 		if(levels.length == 0){
-			alert("Error: Unable to find levels[n]");
+			runAlert("Error: Unable to find levels[n]", false);
 			return null;
 		}
 		var sel = $("layer_s");

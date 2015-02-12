@@ -34,3 +34,10 @@
 - Inserimento sidebar con lista oggetti, tiles e box collisioni;
 - Interazione utente anche con tastiera (ad esempio sulle nuove modali);
 - Aggiungere pulsante preview;
+
+====== Changelog 2015-02-11 =======
+* UI *
+- Aggiunta gestione javascript degli alert con nuovo sistema di modali;
+- Gestione alerts inline nelle modali;
+- Risoluzione di alcuni bug;
+- Gestione di alcuni comandi da tastiera sulle modali.

@@ -71,7 +71,7 @@
             
             <!-- Load tool -->
 			<li>
-            	Image: <div class="custom-file">Scegli file<input id="loadFile" type="file" style="width:220px;"/></div>
+            	Image: <div class="custom-file">Choose file<input id="loadFile" type="file" style="width:220px;"/></div>
             </li>
             
             <!-- Map tool -->
@@ -90,13 +90,13 @@
     <div class="overlay" id="overlay">&nbsp;</div>
     
     <!-- Output -->
-    <textarea id="output" class="output" onFocus="this.select();" /></textarea>
+    <textarea id="output" class="output dialog-box" onFocus="this.select();" /></textarea>
     
     <!-- New map input -->
     <div id="new-map" class="dialog-box">
         <input type="number" id="newWidth" name="newWidth" placeholder="Width">
         <input type="number" id="newHeight" name="newHeight" placeholder="Height">
-        <input type="button" id="newDims" value="Crea">
+        <input type="button" id="newDims" value="Create">
         <span class="error"></span>
     </div>
     
@@ -104,9 +104,19 @@
     <div id="resize-map" class="dialog-box">
         <input type="number" id="resWidth" name="resWidth" placeholder="Width">
         <input type="number" id="resHeight" name="resHeight" placeholder="Height">
-        <input type="button" id="resDims" value="Crea">
+        <input type="button" id="resDims" value="Resize">
         <span class="error"></span>
     </div>
+    
+    <!-- Save level input -->
+    <div id="save-level" class="dialog-box">
+        <input type="number" class="full-length" id="levelNum" name="LevelNum" placeholder="Level">
+        <input type="button" id="levelSav" value="Save">
+        <span class="error"></span>
+    </div>
+    
+    <!-- Alerts container -->
+    <div id="alert" class="dialog-box">&nbsp;</div>
     
 </body>
 </html>
