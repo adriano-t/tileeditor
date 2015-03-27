@@ -1,11 +1,6 @@
 var editor = null;
 var selection = null; 
 
-/*
-window.onerror = function(msg, url, linenumber) {
-	return true;
-}
-*/
 function StartEditor(){ 
 	editor = new Editor(22,12); 
 }
@@ -26,7 +21,6 @@ function Editor(areaW, areaH){
 	}
 	this.SetSize();
 	
-	 
 	this.canvas = $("EditorCanvas");
 	
 	this.ResizeCanvas = function(){
@@ -35,7 +29,6 @@ function Editor(areaW, areaH){
 	}
 	
 	this.ResizeCanvas();
-	
 	
 	this.canvas.addEventListener('contextmenu', function (event) {
 		event.preventDefault();
@@ -97,28 +90,42 @@ function Editor(areaW, areaH){
 	$("loadMap").onclick = function(){editor.LoadMap();};
 	
 	$("newMap").onclick = function(){
-		var w = prompt("Area Width",null);
-		if (w != null){
-			var h = prompt("Area Height",null);
-			if (h != null){
+		this.blur();
+		var newMap = document.getElementById('new-map'); 
+		runOverlay(newMap, 'Create a new map');
+		$("newDims").onclick = function(){
+			var w = $("newWidth").value;
+			var h = $("newHeight").value;
+			if (w != null && h != null){
 				w = parseInt(w);
 				h = parseInt(h);
 				if(w*editor.cellSize < 4000 && h*editor.cellSize < 4000){
 					editor = null;
-					editor = new Editor(w,h); 
+					editor = new Editor(w,h);
+					closeOverlay(); 
+				}
+				else if(isNaN(w) || isNaN(h)){
+					runAlert('You must provide all the dimensions in order to create the map', true);
+					$("newWidth").value = null;
+					$("newHeight").value = null;
 				}
 				else{
-					alert(w + " x "+ h +" is too big");
-				}
+					runAlert('A size of ' + w + 'x' + h + ' is too big.', true);
+					$("newWidth").value = null;
+					$("newHeight").value = null;
+					}
 			}
 		}
 	};
 	
 	$("resizeMap").onclick = function(){
-		var w = prompt("Area Width",null);
-		if (w != null){
-			var h = prompt("Area Height",null);
-			if (h != null){
+		this.blur();
+		var resMap = document.getElementById('resize-map'); 
+		runOverlay(resMap, 'Resize the map');
+		$("resDims").onclick = function(){
+			var w = $("resWidth").value;
+			var h = $("resHeight").value;
+			if (w != null && h != null){
 				w = parseInt(w);
 				h = parseInt(h);
 				if(w*editor.cellSize < 4000 && h*editor.cellSize < 4000){
@@ -126,10 +133,18 @@ function Editor(areaW, areaH){
 					editor.areaH = h;
 					editor.ResizeCanvas();
 					editor.Draw();
+					closeOverlay(); 
+				}
+				else if(isNaN(w) || isNaN(h)){
+					runAlert('You must provide all the dimensions in order to create the map', true);
+					$("resWidth").value = null;
+					$("resHeight").value = null;
 				}
 				else{
-					alert(w + " x "+ h +" is too big");
-				}
+					runAlert('A size of ' + w + 'x' + h + ' is too big.', true);
+					$("resWidth").value = null;
+					$("resHeight").value = null;
+					}
 			}
 		}
 	};
@@ -137,6 +152,8 @@ function Editor(areaW, areaH){
 	
 	$("cellSize").onchange = function(){
 		editor.cellSize = parseInt(this.value);
+		editor.SetSize();
+		editor.ResizeCanvas();
 		editor.Draw();
 		selection.Draw();
 	};
@@ -182,66 +199,79 @@ function Editor(areaW, areaH){
 		editor.Draw();
 	}
 	
-	
 	this.Export = function(){
-		var n = parseInt(prompt("Level Number",1));
-		var output = "levels["+n+"] = [";
 		
-		//settings
+		var lvl = this;
+		var savLvl = document.getElementById('save-level'); 
+		runOverlay(savLvl, 'Set the level number');
 		
-		output += "[" +
-		this.cellSize + "," +
-		this.spacing + "," +
-		this.areaW + "," +
-		this.areaH ;
-		
-		output += "],";
-		
-		//tiles
-		output += "[";
-		for(var i = 0; i < this.tiles.length; i ++){
-			var layer = this.tiles[i];
+		$('levelSav').onclick = function(){
+			var n = parseInt($('levelNum').value);
+			
+			if(isNaN(n)){
+				runAlert('The inserted value for the level is not a valid number.', true);
+				return false;
+				}
+			
+			var output = "levels["+n+"] = [";
+			
+			//settings
+			
+			output += "[" +
+			lvl.cellSize + "," +
+			lvl.spacing + "," +
+			lvl.areaW + "," +
+			lvl.areaH ;
+			
+			output += "],";
+			
+			//tiles
 			output += "[";
-			for(var j = 0; j < layer.length; j ++){
+			for(var i = 0; i < lvl.tiles.length; i ++){
+				var layer = lvl.tiles[i];
+				output += "[";
+				for(var j = 0; j < layer.length; j ++){
+					output += "[" +
+					layer[j][4]+ "," +
+					layer[j][0]/lvl.cellSize + "," +
+					layer[j][1]/lvl.cellSize + "]";
+					if(j < layer.length -1)
+						output += ","
+				}
+				output += "]";
+				if(i < lvl.tiles.length -1)
+					output += ","
+			}
+			output += "],";
+			
+			//collision
+			output += "[";
+			for(var i = 0; i < lvl.blocks.length; i ++){
 				output += "[" +
-				layer[j][4]+ "," +
-				layer[j][0]/this.cellSize + "," +
-				layer[j][1]/this.cellSize + "]";
-				if(j < layer.length -1)
+				lvl.blocks[i][0]/lvl.cellSize + "," +
+				lvl.blocks[i][1]/lvl.cellSize + "]";
+				if(i < lvl.blocks.length -1)
+					output += ","
+			}
+			output += "],";
+			
+			//objects
+			output += "[";
+			for(var i = 0; i < lvl.objects.length; i ++){
+				output += "[" +
+				lvl.objects[i][0]/lvl.cellSize + "," +
+				lvl.objects[i][1]/lvl.cellSize + "," +
+				'"'+lvl.objects[i][2] + '"'+ "]";
+				if(i < lvl.objects.length -1)
 					output += ","
 			}
 			output += "]";
-			if(i < this.tiles.length -1)
-				output += ","
+			
+			
+			output += "];";
+			$("output").value = output;
+			runOverlay($('output'));
 		}
-		output += "],";
-		
-		//collision
-		output += "[";
-		for(var i = 0; i < this.blocks.length; i ++){
-			output += "[" +
-			this.blocks[i][0]/this.cellSize + "," +
-			this.blocks[i][1]/this.cellSize + "]";
-			if(i < this.blocks.length -1)
-				output += ","
-		}
-		output += "],";
-		
-		//objects
-		output += "[";
-		for(var i = 0; i < this.objects.length; i ++){
-			output += "[" +
-			this.objects[i][0]/this.cellSize + "," +
-			this.objects[i][1]/this.cellSize + "," +
-			'"'+this.objects[i][2] + '"'+ "]";
-			if(i < this.objects.length -1)
-				output += ","
-		}
-		output += "]";
-		
-		
-		output += "];"; 
-		$("output").value = output;
 	}
 	
 	
@@ -250,7 +280,7 @@ function Editor(areaW, areaH){
 		var levels = [];
 		eval($("output").value);
 		if(levels.length == 0){
-			alert("Error: Unable to find levels[n]");
+			runAlert("Error: Unable to find levels[n]", false);
 			return null;
 		}
 		var sel = $("layer_s");
@@ -395,12 +425,12 @@ function Editor(areaW, areaH){
 	 
 	///Sprites
 	//Player  
-	this.imgTiles = rh.LoadImage("res/tiles.png", function(){
+	this.imgTiles = rh.LoadImage("_asset/_img/tiles.png", function(){
 		selection = new SelectionFrame(editor.imgTiles);
 	}); 
 	
 	//menu
-	this.sprLogo = rh.LoadImage("res/logo.png");  
+	this.sprLogo = rh.LoadImage("_asset/_img/logo.png");  
  
 	 
 	

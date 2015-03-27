@@ -1,0 +1,43 @@
+====== Changelog 2015-02-07 =======
+
+* STRUTTURA DELLE CARTELLE *
+- Creazione di una struttura con cartelle con naming preceduta da "_";
+- Tutte le risorse sono all'interno della cartella "_asset";
+- Creazione di un foglio di stile separato "style.css" nella cartella "_asset/_css"; 
+- Spostamento immagini in una cartella "_img";
+
+* UI *
+- Abbellimento pulsanti;
+- Abbellimento input e selectbox;
+- Checkbox modificati per ottenere uno stile più uniforme con un override CSS;
+- Sostituzione di alcune finestre di dialogo con finestre modali HTML/CSS3 (In lavorazione anche le restanti in gestione ora con alert);
+- Spostamento della textarea con l'output in una modale fullscreen.
+
+* MARKUP *
+- Rimozione dello stile dall'<head>, aggiunto collegamento al CSS esterno "style.css";
+- Sostituzione di alcuni tag HTML (per esempio i <p> nella parte dei controlli, ora sono un elenco non numerato <ul> - <li>);
+- Sostituzione degli input per creazione e ridimensionamento della mappa con inputs di tipo numerico;
+- Cambio indentazione ed aggiunta commenti nel markup;
+- Rimozione di alcuni stili inline, in lavorazione anche gli altri rimasti per limitare il più possibile la presenza di stili nel markup.
+
+* JAVASCRIPT *
+- Risolto bug alla ridefinizione delle Cell size, per cui se si dichiarava una dimensione diversa la griglia si ridimensionava ma non il div e la canvas contenitori (se il Cell size veniva aumentato la griglia veniva "tagliata");
+- Aggiunto file "ui.js", per la gestione delle interazioni con l'utente, a seguire verranno implementate interazioni tramite tastiera per le finestre modali;
+- Modificati path immagini nel codice come da nuova struttura delle cartelle;
+
+==* IDEE PER PROSSIME IMPLEMENTAZIONI *==
+- Gestione di tutti gli alert tamite la nuova modale;
+- Aggiunta highlight del codice per modale output;
+- Spostamento di alcuni controlli su una barra menu in alto;
+- Rendere controlli più intuitivi;
+- Aggiunta dati sugli oggetti in overlay sugli stessi (ad esempio dimensione del canvas direttamente sotto di esso, in una specie di "barra di stato");
+- Inserimento sidebar con lista oggetti, tiles e box collisioni;
+- Interazione utente anche con tastiera (ad esempio sulle nuove modali);
+- Aggiungere pulsante preview;
+
+====== Changelog 2015-02-11 =======
+* UI *
+- Aggiunta gestione javascript degli alert con nuovo sistema di modali;
+- Gestione alerts inline nelle modali;
+- Risoluzione di alcuni bug;
+- Gestione di alcuni comandi da tastiera sulle modali.
